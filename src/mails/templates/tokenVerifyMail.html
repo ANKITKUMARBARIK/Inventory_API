@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Action Required | Inventory System</title>
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 40px 25px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .heading {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .text {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .token-box {
+            display: inline-block;
+            background-color: #f0f0f0;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #007bff;
+            letter-spacing: 1px;
+            margin: 20px 0;
+        }
+
+        .link-box {
+            margin: 25px 0;
+        }
+
+        .action-link {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .action-link:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">Inventory System 🐳</div>
+        <div class="heading">Action Required</div>
+
+        <p class="text">Hello {{fullName}},</p>
+        <p class="text">Please use the token below to proceed with your request:</p>
+
+        <div class="token-box">{{token}}</div>
+
+        <p class="text">Or click the button below to continue directly:</p>
+
+        <div class="link-box">
+            <a class="action-link" href="{{actionLink}}">Continue</a>
+        </div>
+
+        <p class="text">This link/token is valid for <strong>1 hour</strong>. Please do not share it with anyone.</p>
+
+        <div class="footer">
+            — Inventory System Team<br />
+            <a href="http://localhost:8000">Visit Inventory Portal</a>
+        </div>
+    </div>
+</body>
+
+</html>

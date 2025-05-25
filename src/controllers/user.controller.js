@@ -4,6 +4,11 @@ import ApiResponse from "../utils/ApiResponse.util.js";
 import uploadOnCloudinary from "../services/cloudinary.service.js";
 import generateAccessAndRefreshToken from "../services/token.service.js";
 import jwt from "jsonwebtoken";
+import generateSignupOtp from "../utils/generateSignupOtp.util.js";
+import generateForgetPasswordToken from "../utils/generateForgetPasswordToken.util.js";
+import verifySignupMail from "../services/verifySignupMail.service.js";
+import welcomeSignupMail from "../services/welcomeSignupMail.service.js";
+import tokenVerifyMail from "../services/tokenVerifyMail.service.js";
 import User from "../models/user.model.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
@@ -55,6 +60,9 @@ export const registerUser = asyncHandler(async (req, res) => {
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
     if (!avatar?.url) throw new ApiError(400, "avatar file is required");
 
+    const otpSignup = generateSignupOtp();
+    const otpSignupExpiry = new Date(Date.now() + 5 * 60 * 1000);
+
     const user = new User({
         fullName,
         username: username.toLowerCase(),
@@ -63,6 +71,8 @@ export const registerUser = asyncHandler(async (req, res) => {
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
         timezone,
+        otpSignup,
+        otpSignupExpiry,
     });
     await user.save();
 
@@ -75,10 +85,20 @@ export const registerUser = asyncHandler(async (req, res) => {
             "something went wrong while registering the user"
         );
 
+    await verifySignupMail(
+        createdUser.fullName,
+        createdUser.email,
+        createdUser.otpSignup
+    );
+
     return res
         .status(201)
         .json(
-            new ApiResponse(201, createdUser, "user registered successfully")
+            new ApiResponse(
+                201,
+                createdUser,
+                "user registered successfully....Please verify OTP !"
+            )
         );
 });
 
@@ -107,6 +127,18 @@ export const loginUser = asyncHandler(async (req, res) => {
 
     const isPasswordValid = await existedUser.comparePassword(password);
     if (!isPasswordValid) throw new ApiError(401, "invalid user credentials");
+
+    if (!existedUser.isVerified) {
+        await verifySignupMail(
+            existedUser.fullName,
+            existedUser.email,
+            existedUser.otpSignup
+        );
+        throw new ApiError(
+            401,
+            "Your email is not verified..Please verify OTP"
+        );
+    }
 
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
         existedUser._id
@@ -207,6 +239,101 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
                 200,
                 { accessToken, refreshToken },
                 "access token refreshed successfully"
+            )
+        );
+});
+
+export const verifyOtpSignup = asyncHandler(async (req, res) => {
+    const { otpSignup } = req.body;
+    if (!otpSignup?.trim()) throw new ApiError(401, "otp is required");
+
+    const existedOtp = await User.findOneAndUpdate(
+        { otpSignup, otpSignupExpiry: { $gt: new Date() } },
+        {
+            $unset: { otpSignup: 1, otpSignupExpiry: 1 },
+            $set: { isVerified: true },
+        },
+        { new: true }
+    );
+    if (!existedOtp) throw new ApiError(400, "invalid or expired otp");
+
+    await welcomeSignupMail(existedOtp.fullName, existedOtp.email);
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { email: existedOtp.email, isVerified: existedOtp.isVerified },
+                "otp is verified successfully"
+            )
+        );
+});
+
+export const forgetUserPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    if (!email?.trim()) throw new ApiError(400, "email is required");
+
+    // Generate reset token
+    const token = generateForgetPasswordToken();
+    const expiry = Date.now() + 3600000; // 1 hour from now
+
+    const existedEmail = await User.findOneAndUpdate(
+        { email },
+        {
+            $set: { forgetPasswordToken: token, forgetPasswordExpiry: expiry },
+        },
+        { new: true }
+    );
+    if (!existedEmail) throw new ApiError(404, "email does not exists");
+
+    await tokenVerifyMail(
+        existedEmail.fullName,
+        existedEmail.email,
+        existedEmail.forgetPasswordToken
+    );
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { email: existedEmail.email },
+                "token generated - check your email to reset your password"
+            )
+        );
+});
+
+export const resetUserPassword = asyncHandler(async (req, res) => {
+    const { token } = req.params;
+    const { newPassword, confirmPassword } = req.body;
+
+    if (!token?.trim()) throw new ApiError(400, "token is required");
+
+    if ([newPassword, confirmPassword].some((field) => !field?.trim()))
+        throw new ApiError(400, "both fields are required");
+
+    if (newPassword !== confirmPassword)
+        throw new ApiError(400, "new and confirm password must be same");
+
+    const existedToken = await User.findOne({
+        forgetPasswordToken: token,
+        forgetPasswordExpiry: { $gt: new Date() },
+    });
+    if (!existedToken) throw new ApiError(400, "invalid or expired token");
+
+    existedToken.forgetPasswordToken = undefined;
+    existedToken.forgetPasswordExpiry = undefined;
+    existedToken.password = confirmPassword;
+    await existedToken.save();
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { email: existedToken.email },
+                "Password reset successfully. You can now log in with your new password."
             )
         );
 });

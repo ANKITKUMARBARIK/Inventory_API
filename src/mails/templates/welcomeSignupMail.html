@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Welcome | Inventory System</title>
+    <style>
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 40px 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .heading {
+            font-size: 22px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .welcome-message {
+            color: #555;
+            font-size: 16px;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">Inventory System 🐳</div>
+        <div class="heading">Welcome to Inventory System</div>
+
+        <p class="welcome-message">
+            Hi <strong>{{fullName}}</strong>,<br><br>
+            <img src="cid:img1-contentid" alt="banner" width="400px" /><br>
+            Thank you for signing up with our Inventory System! We're excited to have you on board.<br>
+            Manage your inventory, track your stock, and grow your business with ease.<br><br>
+            Click the button below to get started:
+        </p>
+
+        <a href="{{dashboardLink}}" class="btn">Go to Dashboard</a>
+
+        <div class="footer">
+            &mdash; Inventory System Team<br />
+            <a href="http://localhost:8000">Visit Inventory Portal</a>
+        </div>
+    </div>
+</body>
+
+</html>

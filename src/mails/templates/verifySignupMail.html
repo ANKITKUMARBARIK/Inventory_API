@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>OTP Verification | Inventory System</title>
+    <style>
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 40px 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .heading {
+            font-size: 22px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .otp-box {
+            background-color: #f0f0f0;
+            padding: 18px 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+            font-size: 30px;
+            font-weight: bold;
+            color: #007bff;
+            letter-spacing: 6px;
+            display: inline-block;
+        }
+
+        .text {
+            color: #555;
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">Inventory System 🐳</div>
+        <div class="heading">Email Verification</div>
+
+        <p class="text">Hello {{fullName}},</p>
+        <p class="text">Please use the OTP below to verify your email address:</p>
+
+        <div class="otp-box">{{otpSignup}}</div>
+
+        <p class="text">This OTP is valid for <strong>5 minutes</strong>. Please do not share it with anyone.</p>
+
+        <div class="footer">
+            &mdash; Inventory System Team<br />
+            <a href="http://localhost:8000">Visit Inventory Portal</a>
+        </div>
+    </div>
+</body>
+
+</html>
