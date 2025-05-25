@@ -9,4 +9,10 @@ app.use(express.json({ limit: fileSize }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
+// route imports
+import userRouter from "./routes/user.route.js";
+
+// route declarations
+app.use("/api/v1/users", userRouter);
+
 export default app;
