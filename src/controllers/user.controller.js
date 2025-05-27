@@ -10,6 +10,7 @@ import verifySignupMail from "../services/verifySignupMail.service.js";
 import welcomeSignupMail from "../services/welcomeSignupMail.service.js";
 import tokenVerifyMail from "../services/tokenVerifyMail.service.js";
 import User from "../models/user.model.js";
+import ROLES from "../config/roles.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
     /*
@@ -481,5 +482,36 @@ export const updateUserCoverImage = asyncHandler(async (req, res) => {
         .status(200)
         .json(
             new ApiResponse(200, existedUser, "coverImage updated successfully")
+        );
+});
+
+export const updateUserRole = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!id || !role?.trim())
+        throw new ApiError(400, "id or role are required");
+
+    if (!Object.values(ROLES).includes(role))
+        throw new ApiError(400, "Invalid role");
+
+    if (req.user.id === id)
+        throw new ApiError(403, "you cannot update your own role");
+
+    const existedUser = await User.findByIdAndUpdate(
+        id,
+        { $set: { role } },
+        { new: true }
+    ).select("-password -refreshToken");
+    if (!existedUser) throw new ApiError(404, "user not found");
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                existedUser,
+                `user role updated to ${existedUser.role}`
+            )
         );
 });

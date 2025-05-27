@@ -13,8 +13,11 @@ import {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
+    updateUserRole,
 } from "../controllers/user.controller.js";
 import verifyJWT from "../middlewares/auth.middleware.js";
+import verifyAuthorization from "../middlewares/authorize.middleware.js";
+import ROLES from "../config/roles.js";
 
 const router = Router();
 
@@ -57,5 +60,10 @@ router
 router
     .route("/update-coverImage")
     .patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
+
+// user roles
+router
+    .route("/make-admin/:id")
+    .patch(verifyJWT, verifyAuthorization(ROLES.ADMIN), updateUserRole);
 
 export default router;
