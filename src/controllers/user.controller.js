@@ -1,7 +1,10 @@
 import asyncHandler from "../utils/asyncHandler.util.js";
 import ApiError from "../utils/ApiError.util.js";
 import ApiResponse from "../utils/ApiResponse.util.js";
-import uploadOnCloudinary from "../services/cloudinary.service.js";
+import {
+    uploadOnCloudinary,
+    deleteFromCloudinary,
+} from "../services/cloudinary.service.js";
 import generateAccessAndRefreshToken from "../services/token.service.js";
 import jwt from "jsonwebtoken";
 import generateSignupOtp from "../utils/generateSignupOtp.util.js";
@@ -75,7 +78,18 @@ export const registerUser = asyncHandler(async (req, res) => {
         otpSignup,
         otpSignupExpiry,
     });
-    await user.save();
+    try {
+        await user.save();
+    } catch (error) {
+        console.log("user creation failed");
+        if (avatar?.public_id) await deleteFromCloudinary(avatar.public_id);
+        if (coverImage?.public_id)
+            await deleteFromCloudinary(coverImage.public_id);
+        throw new ApiError(
+            500,
+            "error saving user to database and images were deleted"
+        );
+    }
 
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
