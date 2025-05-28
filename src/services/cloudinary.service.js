@@ -1,27 +1,48 @@
 import cloudinary from "../config/cloudinary.config.js";
-import fs from "fs/promises";
+// import fs from "fs/promises";
+import streamifier from "streamifier";
 
-export const uploadOnCloudinary = async (localFilePath) => {
-    if (!localFilePath) return null;
+// export const uploadOnCloudinary = async (localFilePath) => {
+//     if (!localFilePath) return null;
+
+//     try {
+//         const response = await cloudinary.uploader.upload(localFilePath, {
+//             resource_type: "auto",
+//         });
+//         console.log("uploaded to cloudinary ", response.url);
+
+//         await fs.unlink(localFilePath);
+
+//         return response;
+//     } catch (err) {
+//         console.log("cloudinary upload error ", err);
+
+//         try {
+//             await fs.unlink(localFilePath);
+//         } catch (err) {
+//             console.error("failed to delete local file:", err.message);
+//         }
+
+//         return null;
+//     }
+// };
+
+export const uploadOnCloudinary = async (fileBuffer) => {
+    if (!fileBuffer) return null;
 
     try {
-        const response = await cloudinary.uploader.upload(localFilePath, {
-            resource_type: "auto",
+        return await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                { resource_type: "auto" },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            streamifier.createReadStream(fileBuffer).pipe(stream);
         });
-        console.log("uploaded to cloudinary ", response.url);
-
-        await fs.unlink(localFilePath);
-
-        return response;
-    } catch (err) {
-        console.log("cloudinary upload error ", err);
-
-        try {
-            await fs.unlink(localFilePath);
-        } catch (err) {
-            console.error("failed to delete local file:", err.message);
-        }
-
+    } catch (error) {
+        console.error("Cloudinary upload error:", error);
         return null;
     }
 };
