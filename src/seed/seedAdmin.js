@@ -8,10 +8,10 @@ const seedAdmin = async () => {
             const user = new User({
                 username: "admin",
                 fullName: "Admin",
-                email: "admin.dev@gmail.com",
+                email: process.env.ADMIN_EMAIL,
                 avatar: "avatar.png",
                 coverImage: "coverImage.png",
-                password: "123",
+                password: process.env.ADMIN_PASSWORD,
                 timezone: "Asia/Kolkata",
                 role: ROLES.ADMIN,
                 isVerified: true,
